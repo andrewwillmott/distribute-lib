@@ -72,7 +72,7 @@ uint32_t DistLib::ModWeighted(uint32_t u, int numWeights, const float weights[])
         if (s < weights[i])
         {
             float fs = float(i) / numWeights + s / (numWeights * weights[i]);
-            return fs * UINT32_MAX;
+            return uint32_t(fs * UINT32_MAX);
         }
         
         s -= weights[i];
@@ -100,7 +100,6 @@ uint32_t DistLib::ModWeighted(uint32_t u, int numWeights, const int weights[])
         {
             uint32_t outStep = UINT32_MAX / numWeights;
 
-            // return outStep * i + (uint64_t(weightSum) * s) / (weights[i] * numWeights);
             return outStep * i + (weightSum * (u / weights[i])) / numWeights; // re-arranged to stick to 32-bit arithmetic at the expense of a few bits
         }
         
@@ -383,7 +382,6 @@ Vec3f DistLib::ToTorus(uint32_t u0, uint32_t u1, uint32_t u2, float r)
 {
     r *= 0.5f;
     
-    // can be seen as a disc of a certain r'?
     float theta = ToFloatSigned(u0, vl_pi);
 
     float ss, cs;

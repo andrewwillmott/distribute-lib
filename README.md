@@ -2,8 +2,8 @@ DistributeLib
 =============
 
 A single-source-file library for converting 32-bit integer inputs into various 1D, 2D, and 
-3D distributions and types. The intended use is to convert the output of an RNG into various 
-more useful forms.
+3D distributions and types. The intended use is to convert the output of an RNG into 
+various more useful forms.
 
 Features:
 
@@ -11,26 +11,29 @@ Features:
 * Cheap routines that only take one input number, but may be less accurate or controllable
 * More accurate routines that take a full number of input samples, e.g., three for a cube
 * Pre-modulation of inputs into triangular, gaussian-like, and weighted forms
-* Gaussian (normal) distribution as both a cheap approximation and via full Box-Muller transform
-
+* Gaussian (normal) distribution as both a cheap approximation and via full Box-Muller 
+  transform
+* Optional generators supplying LCG/PCG/Halton/Golden sequences.
 
 To build and run the test app:
 
     c++ --std=c++11 Distribute.cpp DistributeTest.cpp -o distribute && ./distribute 200
 
 
+
 Examples
 --------
 
 Assuming 'rng' returns the next sample via operator uint32_t(), usage can be as simple as 
-below, otherwise substitute rng() or rng.next() or whatever else is appropriate.
+below, otherwise substitute rng() or whatever other syntax is appropriate for your sample 
+generator.
 
 1D:
 
 	float score     = ToFloat(rng, 1.0f, 100.0f);
 	int   modifier  = ToInt32Signed(rng, 5);
 	int   dayOfYear = ToInt32Inclusive(rng, 1, 365);
-	float weightKG  = ToFloat(ToGaussLike(rng), 50.0f, 130.0f);
+	float weightKG  = ToFloat(ModGaussLike(rng), 50.0f, 130.0f);
 
 2D/3D:
 
@@ -40,8 +43,11 @@ below, otherwise substitute rng() or rng.next() or whatever else is appropriate.
 
 
 Warning: do not simply use rand() to feed these functions, as, in addition to its low 
-quality, its range is not guaranteed to be a full 32 bits. Consider a simple LCG or 
-something like http://www.pcg-random.org instead.
+quality, its range is not guaranteed to be a full 32 bits.
+
+If you don't already have your own preferred RNG routines, the additional files
+Generate.h/cpp provide LCG, PCG, Halton, and "Golden" generators, in a form that 
+interoperates cleanly with Distribute.h.
 
 
 Output
@@ -65,7 +71,7 @@ Output
 	![](images/float-triangle.png "Float triangular distribution")
 	![](images/square-triangle.png "Square triangular distribution")
 
-* Gauss-like Modifier: integer, square, and full gaussian for comparison. (Note long tail.)
+* Gauss-like Modifier: integer, square, and full gaussian for comparison.
 
 	![](images/int-gauss-like.png "Gauss-like integer -10 -- 10")
 	![](images/square-gauss-like.png "Gauss-like over the square")
