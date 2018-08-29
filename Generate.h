@@ -184,7 +184,7 @@ namespace DistLib
         uint32_t xorshifted = uint32_t(((oldstate >> 18u) ^ oldstate) >> 27u);
         uint32_t rot = oldstate >> 59u;
 
-        return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
+        return (xorshifted >> rot) | (xorshifted << ((-int32_t(rot)) & 31)); // int32_t cast added as latest VS treats -u as error by default \o/
     }
 
     inline cPCG::operator uint32_t()
@@ -192,7 +192,7 @@ namespace DistLib
         return Next();
     }
 
-    const float    kGoldenF32 = 0.5f * (sqrt(5.0f) - 1.0f);
+    const float    kGoldenF32 = 0.5f * (sqrtf(5.0f) - 1.0f);
     const uint32_t kGoldenU32 = uint32_t(UINT32_MAX * kGoldenF32);
 
     inline float GoldenFloat(int i)

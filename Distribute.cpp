@@ -370,7 +370,7 @@ Vec3f DistLib::ToSphere(uint32_t u0, uint32_t u1, uint32_t u2)
 
     float r3 = ToFloat(u2);
     
-    return Vec3f(cs * sz, ss * sz, cz) * cbrt(r3);
+    return Vec3f(cs * sz, ss * sz, cz) * cbrtf(r3);
 }
 
 Vec3f DistLib::ToEllipsoid(uint32_t u0, uint32_t u1, uint32_t u2, Vec3f min, Vec3f max)
