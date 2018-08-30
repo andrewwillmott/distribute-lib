@@ -93,3 +93,9 @@ Output
 	![](images/square-golden.png "Golden Square")
 	![](images/circle-golden.png "Golden Circle")
 	![](images/sphere-surface-golden.png "Golden Sphere Surface")
+
+* Progressively adding samples from the PCG, Halton, and Golden sequences
+
+	![](images/circle-pcg-anim.gif "PCG Circle")
+	![](images/circle-halton-anim.gif "Halton Circle")
+	![](images/circle-golden-anim.gif "Golden Circle (Spiral)")
