@@ -1,32 +1,35 @@
 DistributeLib
 =============
 
-A single-source-file library for converting 32-bit integer inputs into various 1D, 2D, and 
-3D distributions and types. The intended use is to convert the output of an RNG into 
-various more useful forms.
+A single-source-file library for converting 32-bit integer inputs into various
+1D, 2D, and 3D distributions and types. The intended use is to convert the
+output of an RNG into various more useful forms.
 
 Features:
 
 * Generation of int, float, 2D and 3D samples over various shapes
-* Cheap routines that only take one input number, but may be less accurate or controllable
-* More accurate routines that take a full number of input samples, e.g., three for a cube
+* Cheap routines that only take one input number, but may be less accurate or
+  controllable
+* More accurate routines that take a full number of input samples, e.g., three
+  for a cube
 * Pre-modulation of inputs into triangular, gaussian-like, and weighted forms
-* Gaussian (normal) distribution as both a cheap approximation and via full Box-Muller 
-  transform
-* Optional generators supplying LCG/PCG/Halton/Golden sequences.
+* Gaussian (normal) distribution as both a cheap approximation and via full
+  Box-Muller transform
+* Optional generators supplying LCG/PCG/Halton/Golden/'R' sequences.
 
 To build and run the test app:
 
     c++ --std=c++11 Distribute.cpp DistributeTest.cpp -o distribute && ./distribute 200
 
+Or add those files to your favourite IDE.
 
 
 Examples
 --------
 
-Assuming 'rng' returns the next sample via operator uint32_t(), usage can be as simple as 
-below, otherwise substitute rng() or whatever other syntax is appropriate for your sample 
-generator.
+Assuming 'rng' returns the next sample via operator uint32_t(), usage can be as
+simple as below, otherwise substitute rng() or whatever other syntax is
+appropriate for your sample generator.
 
 1D:
 
@@ -41,13 +44,12 @@ generator.
 	Vec2f pixTentSample = ToSquare(ModTriangle(rng), ModTriangle(rng));
 	Vec3f rayDir        = ToDirection3(rng);
 
-
-Warning: do not simply use rand() to feed these functions, as, in addition to its low 
-quality, its range is not guaranteed to be a full 32 bits.
+Warning: do not simply use rand() to feed these functions, as, in addition to
+its low quality, its range is not guaranteed to be a full 32 bits.
 
 If you don't already have your own preferred RNG routines, the additional files
-Generate.h/cpp provide LCG, PCG, Halton, and "Golden" generators, in a form that 
-interoperates cleanly with Distribute.h.
+Generate.h/cpp provide LCG, PCG, Halton, "Golden" (Spiral), and "R" generators,
+in a form that interoperates cleanly with Distribute.h.
 
 
 Output
@@ -96,6 +98,12 @@ Output
 
 * Progressively adding samples from the PCG, Halton, and Golden sequences
 
-	![](images/circle-pcg-anim.gif "PCG Circle")
-	![](images/circle-halton-anim.gif "Halton Circle")
-	![](images/circle-golden-anim.gif "Golden Circle (Spiral)")
+    <a href="images/circle-pcg-anim.gif"   ><img src="images/circle-pcg-anim.gif"    alt="PCG Circle"             width="256"/></a>
+    <a href="images/circle-halton-anim.gif"><img src="images/circle-halton-anim.gif" alt="Halton Circle"          width="256"/></a>
+    <a href="images/circle-golden-anim.gif"><img src="images/circle-golden-anim.gif" alt="Golden (Spiral) Circle" width="256"/></a>
+
+* Progressively adding samples from the Rd sequence: square, circle, cube
+
+    <a href="images/square-rd-anim.gif"><img src="images/square-rd-anim.gif" alt="Rd Square" width="256"/></a>
+    <a href="images/circle-rd-anim.gif"><img src="images/circle-rd-anim.gif" alt="Rd Circle" width="256"/></a>
+    <a href="images/cube-rd-anim.gif"  ><img src="images/cube-rd-anim.gif"   alt="Rd Cube"   width="256"/></a>

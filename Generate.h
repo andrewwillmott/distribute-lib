@@ -132,6 +132,41 @@ namespace DistLib
     };
 
 
+    //--------------------------------------------------------------------------
+    // Generalised Kronecker/golden ratio combination, Rd.
+    // See http://extremelearning.com.au/unreasonable-effectiveness-of-quasirandom-sequences/
+    //--------------------------------------------------------------------------
+
+    struct cR1U
+    {
+        uint32_t mU = UINT32_MAX / 2;
+
+        void Set(int n);        ///< Jump directly to term 'n' of the sequence
+        void operator++();      ///< Advance to next point in the sequence.
+
+        operator uint32_t();    ///< Return next number in sequence in uint32_t context
+    };
+
+    struct cR2U
+    {
+        uint32_t mU[2] = { 0 };     ///< Current sample point
+
+        cR2U();
+
+        void Set(int n);   ///< Jump directly to term 'n' of the sequence
+        void operator++(); ///< Advance to next point in the sequence.
+    };
+
+    struct cR3U
+    {
+        uint32_t mU[3] = { 0 };     ///< Current sample point
+
+        cR3U();
+
+        void Set(int n);   ///< Jump directly to term 'n' of the sequence
+        void operator++(); ///< Advance to next point in the sequence.
+    };
+
 
     // --- Inlines -------------------------------------------------------------
 
@@ -223,6 +258,81 @@ namespace DistLib
     {
         mU[0] += kGoldenU32;
         mU[1] += mStep;
+    }
+
+
+    constexpr float    kG1 = 1.6180339887498948482;
+    constexpr float    kR1xF32 = 1.0 / kG1;
+    constexpr uint32_t kR1xU32 = uint32_t(UINT32_MAX * kR1xF32);    // Same as kGoldenU32, the Rn sequences are a generalisation of this
+
+    inline void cR1U::Set(int i)
+    {
+        mU = uint32_t(UINT32_MAX / 2 + i * kR1xU32);
+    }
+
+    inline void cR1U::operator++()
+    {
+        mU += kR1xU32;
+    }
+
+    inline cR1U::operator uint32_t()
+    {
+        uint32_t u = mU;
+        mU += kR1xU32;
+        return u;
+    }
+
+    constexpr float    kG2 = 1.32471795724474602596;
+    constexpr float    kR2xF32 = 1.0 / kG2;
+    constexpr float    kR2yF32 = 1.0 / (kG2 * kG2);
+    constexpr uint32_t kR2xU32 = uint32_t(UINT32_MAX * kR2xF32);
+    constexpr uint32_t kR2yU32 = uint32_t(UINT32_MAX * kR2yF32);
+
+    inline cR2U::cR2U()
+    {
+        mU[0] = UINT32_MAX / 2;
+        mU[1] = UINT32_MAX / 2;
+    }
+
+    inline void cR2U::Set(int i)
+    {
+        mU[0] = uint32_t(UINT32_MAX / 2 + i * kR2xU32);
+        mU[1] = uint32_t(UINT32_MAX / 2 + i * kR2yU32);
+    }
+
+    inline void cR2U::operator++()
+    {
+        mU[0] += kR2xU32;
+        mU[1] += kR2yU32;
+    }
+
+    constexpr float    kG3 = 1.22074408460575947536;
+    constexpr float    kR3xF32 = 1.0 / kG3;
+    constexpr float    kR3yF32 = 1.0 / (kG3 * kG3);
+    constexpr float    kR3zF32 = 1.0 / (kG3 * kG3 * kG3);
+    constexpr uint32_t kR3xU32 = uint32_t(UINT32_MAX * kR3xF32);
+    constexpr uint32_t kR3yU32 = uint32_t(UINT32_MAX * kR3yF32);
+    constexpr uint32_t kR3zU32 = uint32_t(UINT32_MAX * kR3zF32);
+
+    inline cR3U::cR3U()
+    {
+        mU[0] = UINT32_MAX / 2;
+        mU[1] = UINT32_MAX / 2;
+        mU[2] = UINT32_MAX / 2;
+    }
+
+    inline void cR3U::Set(int i)
+    {
+        mU[0] = uint32_t(UINT32_MAX / 2 + i * kR3xU32);
+        mU[1] = uint32_t(UINT32_MAX / 2 + i * kR3yU32);
+        mU[2] = uint32_t(UINT32_MAX / 2 + i * kR3zU32);
+    }
+
+    inline void cR3U::operator++()
+    {
+        mU[0] += kR3xU32;
+        mU[1] += kR3yU32;
+        mU[2] += kR3zU32;
     }
 }
 
