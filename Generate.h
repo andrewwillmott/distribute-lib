@@ -35,7 +35,7 @@ namespace DistLib
     //--------------------------------------------------------------------------
 
     struct cPCG
-    // See http://www.pcg-random.org
+    /// See http://www.pcg-random.org
     {
         uint64_t mState = 0x853c49e6748fea9bULL;
         uint64_t mInc   = 0xda3e39cb94b95bdbULL;
@@ -46,6 +46,41 @@ namespace DistLib
         uint32_t Next();        ///< Explicit next number in sequence
         operator uint32_t();    ///< Return next number in sequence in uint32_t context
     };
+
+
+    //--------------------------------------------------------------------------
+    // XorShift
+    //--------------------------------------------------------------------------
+
+    struct cXORShift
+    /// See https://en.wikipedia.org/wiki/Xorshift
+    {
+        uint32_t mState = 0x12345678;
+
+        cXORShift() {}
+        cXORShift(uint32_t seed);
+
+        uint32_t Next();        ///< Explicit next number in sequence
+        operator uint32_t();    ///< Return next number in sequence in uint32_t context
+    };
+
+
+    //--------------------------------------------------------------------------
+    // cHashGen
+    //--------------------------------------------------------------------------
+
+    struct cHashGen
+    /// Works by hashing a counter, which means it's random access, which may
+    /// be necessary in some applications. Applies an LCG and then xorshift to
+    /// the counter to avoid patterns.
+    {
+        uint32_t mIndex = 0;
+
+        uint32_t Next();        ///< Advance to next point in the sequence. Returns the index of this point.
+        void     Set (int n);   ///< Jump directly to term 'n' of the sequence
+        operator uint32_t();    ///< Return next number in sequence in uint32_t context
+    };
+    uint32_t HashInt(uint32_t i);   ///< Hash used by above, in case direct use is more convenient
 
 
     //--------------------------------------------------------------------------
@@ -68,7 +103,6 @@ namespace DistLib
         
         int  Next ();       ///< Advance to next point in the sequence. Returns the index of this point.
         void Set  (int n);  ///< Jump directly to term 'n' of the sequence
-        int operator++() { return Next(); }  ///< Synonym for Next().
     };
     
     struct cHalton3
@@ -82,7 +116,6 @@ namespace DistLib
         
         int  Next ();       ///< Advance to next point in the sequence. Returns the index of this point.
         void Set  (int n);  ///< Jump directly to term 'n' of the sequence
-        int operator++() { return Next(); }  ///< Synonym for Next().
     };
 
     struct cHalton2U
@@ -95,7 +128,6 @@ namespace DistLib
         
         int  Next ();       ///< Advance to next point in the sequence. Returns the index of this point.
         void Set  (int n);  ///< Jump directly to term 'n' of the sequence
-        int operator++() { return Next(); }  ///< Synonym for Next().
     };
 
     struct cHalton3U
@@ -109,7 +141,6 @@ namespace DistLib
         
         int  Next ();       ///< Advance to next point in the sequence. Returns the index of this point.
         void Set  (int n);  ///< Jump directly to term 'n' of the sequence
-        int  operator++() { return Next(); } ///< Synonym for Next().
     };
 
     
@@ -127,8 +158,8 @@ namespace DistLib
 
         cGolden2U(int numSamples);
         
-        void Set(int n);   ///< Jump directly to term 'n' of the sequence
-        void operator++(); ///< Advance to next point in the sequence.
+        void Next();        ///< Advance to next point in the sequence.
+        void Set(int n);    ///< Jump directly to term 'n' of the sequence
     };
 
 
@@ -139,33 +170,50 @@ namespace DistLib
 
     struct cR1U
     {
-        uint32_t mU = UINT32_MAX / 2;
+        uint32_t mU = UINT32_MAX / 2; ///< Current sample point
 
-        void Set(int n);        ///< Jump directly to term 'n' of the sequence
-        void operator++();      ///< Advance to next point in the sequence.
+        void Next();        ///< Advance to next point in the sequence.
+        void Set(int n);    ///< Jump directly to term 'n' of the sequence
 
         operator uint32_t();    ///< Return next number in sequence in uint32_t context
     };
 
     struct cR2U
     {
-        uint32_t mU[2] = { 0 };     ///< Current sample point
+        uint32_t mU[2] = { UINT32_MAX / 2, UINT32_MAX / 2 }; ///< Current sample point
 
-        cR2U();
-
-        void Set(int n);   ///< Jump directly to term 'n' of the sequence
-        void operator++(); ///< Advance to next point in the sequence.
+        void Next();        ///< Advance to next point in the sequence.
+        void Set(int n);    ///< Jump directly to term 'n' of the sequence
     };
 
     struct cR3U
     {
-        uint32_t mU[3] = { 0 };     ///< Current sample point
+        uint32_t mU[3] = { UINT32_MAX / 2, UINT32_MAX / 2, UINT32_MAX / 2 }; ///< Current sample point
 
-        cR3U();
-
-        void Set(int n);   ///< Jump directly to term 'n' of the sequence
-        void operator++(); ///< Advance to next point in the sequence.
+        void Next();        ///< Advance to next point in the sequence.
+        void Set(int n);    ///< Jump directly to term 'n' of the sequence
     };
+
+
+    //--------------------------------------------------------------------------
+    // Jittered version of R2.
+    // See http://extremelearning.com.au/a-simple-method-to-construct-isotropic-quasirandom-blue-noise-point-sequences/
+    //--------------------------------------------------------------------------
+
+    struct cR2JitterU
+    {
+        uint32_t mU[2]  = { 0 };     ///< Current sample point
+
+        cR2U     mR;        ///< R2 sequence
+        cHashGen mJ;        ///< Jitter
+        float    mS;        ///< Scale term
+
+        cR2JitterU(float lambda = 1.0f);    ///< Lambda controls jitter amount
+
+        void Next();        ///< Advance to next point in sequence
+        void Set(int n);    ///< Jump directly to term 'n' of the sequence
+    };
+
 
 
     // --- Inlines -------------------------------------------------------------
@@ -194,9 +242,9 @@ namespace DistLib
 
     inline uint32_t cLCG::Next()
     {
-        uint32_t current(mState);
+        uint32_t oldState = mState;
         mState = uint32_t(mState * uint64_t(1103515245) + 12345);
-        return current;
+        return oldState;
     }
 
     inline cLCG::operator uint32_t()
@@ -213,16 +261,56 @@ namespace DistLib
 
     inline uint32_t cPCG::Next()
     {
-        uint64_t oldstate = mState;
-        mState = oldstate * 6364136223846793005ULL + mInc;
+        uint64_t oldState = mState;
+        mState = oldState * 6364136223846793005ULL + mInc;
 
-        uint32_t xorshifted = uint32_t(((oldstate >> 18u) ^ oldstate) >> 27u);
-        uint32_t rot = oldstate >> 59u;
+        uint32_t xorShifted = uint32_t(((oldState >> 18u) ^ oldState) >> 27u);
+        uint32_t rot = oldState >> 59u;
 
-        return (xorshifted >> rot) | (xorshifted << ((-int32_t(rot)) & 31)); // int32_t cast added as latest VS treats -u as error by default \o/
+        return (xorShifted >> rot) | (xorShifted << ((-int32_t(rot)) & 31)); // int32_t cast added as latest VS treats -u as error by default \o/
     }
 
     inline cPCG::operator uint32_t()
+    {
+        return Next();
+    }
+
+    inline cXORShift::cXORShift(uint32_t seed) : mState(seed)
+    {}
+
+    inline uint32_t cXORShift::Next()
+    {
+        mState ^= (mState << 13);
+        mState ^= (mState >> 17);
+        mState ^= (mState << 5);
+        return mState;
+    }
+
+    inline cXORShift::operator uint32_t()
+    {
+        return Next();
+    }
+
+    inline uint32_t HashInt(uint32_t i)
+    {
+        uint32_t hash = i * 1103515245 + 12345;
+        hash ^= (hash << 13);
+        hash ^= (hash >> 17);
+        hash ^= (hash << 5);
+        return hash;
+    }
+
+    inline void cHashGen::Set(int i)
+    {
+        mIndex = i;
+    }
+
+    inline uint32_t cHashGen::Next()
+    {
+        return HashInt(mIndex++);
+    }
+
+    inline cHashGen::operator uint32_t()
     {
         return Next();
     }
@@ -248,31 +336,31 @@ namespace DistLib
         mU[1] = mStep / 2;
     }
 
+    inline void cGolden2U::Next()
+    {
+        mU[0] += kGoldenU32;
+        mU[1] += mStep;
+    }
+
     inline void cGolden2U::Set(int i)
     {
         mU[0] = uint32_t(i * kGoldenU32);
         mU[1] = i * mStep + mStep / 2;
     }
 
-    inline void cGolden2U::operator++()
-    {
-        mU[0] += kGoldenU32;
-        mU[1] += mStep;
-    }
 
-
-    constexpr float    kG1 = 1.6180339887498948482;
-    constexpr float    kR1xF32 = 1.0 / kG1;
+    constexpr float    kG1 = 1.6180339887498948482f;
+    constexpr float    kR1xF32 = 1.0f / kG1;
     constexpr uint32_t kR1xU32 = uint32_t(UINT32_MAX * kR1xF32);    // Same as kGoldenU32, the Rn sequences are a generalisation of this
+
+    inline void cR1U::Next()
+    {
+        mU += kR1xU32;
+    }
 
     inline void cR1U::Set(int i)
     {
         mU = uint32_t(UINT32_MAX / 2 + i * kR1xU32);
-    }
-
-    inline void cR1U::operator++()
-    {
-        mU += kR1xU32;
     }
 
     inline cR1U::operator uint32_t()
@@ -282,16 +370,16 @@ namespace DistLib
         return u;
     }
 
-    constexpr float    kG2 = 1.32471795724474602596;
-    constexpr float    kR2xF32 = 1.0 / kG2;
-    constexpr float    kR2yF32 = 1.0 / (kG2 * kG2);
+    constexpr float    kG2 = 1.32471795724474602596f;
+    constexpr float    kR2xF32 = 1.0f / kG2;
+    constexpr float    kR2yF32 = 1.0f / (kG2 * kG2);
     constexpr uint32_t kR2xU32 = uint32_t(UINT32_MAX * kR2xF32);
     constexpr uint32_t kR2yU32 = uint32_t(UINT32_MAX * kR2yF32);
 
-    inline cR2U::cR2U()
+    inline void cR2U::Next()
     {
-        mU[0] = UINT32_MAX / 2;
-        mU[1] = UINT32_MAX / 2;
+        mU[0] += kR2xU32;
+        mU[1] += kR2yU32;
     }
 
     inline void cR2U::Set(int i)
@@ -300,25 +388,19 @@ namespace DistLib
         mU[1] = uint32_t(UINT32_MAX / 2 + i * kR2yU32);
     }
 
-    inline void cR2U::operator++()
-    {
-        mU[0] += kR2xU32;
-        mU[1] += kR2yU32;
-    }
-
-    constexpr float    kG3 = 1.22074408460575947536;
-    constexpr float    kR3xF32 = 1.0 / kG3;
-    constexpr float    kR3yF32 = 1.0 / (kG3 * kG3);
-    constexpr float    kR3zF32 = 1.0 / (kG3 * kG3 * kG3);
+    constexpr float    kG3 = 1.22074408460575947536f;
+    constexpr float    kR3xF32 = 1.0f / kG3;
+    constexpr float    kR3yF32 = 1.0f / (kG3 * kG3);
+    constexpr float    kR3zF32 = 1.0f / (kG3 * kG3 * kG3);
     constexpr uint32_t kR3xU32 = uint32_t(UINT32_MAX * kR3xF32);
     constexpr uint32_t kR3yU32 = uint32_t(UINT32_MAX * kR3yF32);
     constexpr uint32_t kR3zU32 = uint32_t(UINT32_MAX * kR3zF32);
 
-    inline cR3U::cR3U()
+    inline void cR3U::Next()
     {
-        mU[0] = UINT32_MAX / 2;
-        mU[1] = UINT32_MAX / 2;
-        mU[2] = UINT32_MAX / 2;
+        mU[0] += kR3xU32;
+        mU[1] += kR3yU32;
+        mU[2] += kR3zU32;
     }
 
     inline void cR3U::Set(int i)
@@ -328,11 +410,38 @@ namespace DistLib
         mU[2] = uint32_t(UINT32_MAX / 2 + i * kR3zU32);
     }
 
-    inline void cR3U::operator++()
+    constexpr float    kR2dF32 = 0.76f * 1.772453851f / 4.0f;  // 1.77245 is sqrt(pi), as C++11 didn't make sqrt constexpr \o/
+    constexpr uint32_t kR2dU32 = uint32_t(UINT32_MAX * kR2dF32);
+
+    inline cR2JitterU::cR2JitterU(float lambda) :
+        mS(kR2dU32 * lambda)
     {
-        mU[0] += kR3xU32;
-        mU[1] += kR3yU32;
-        mU[2] += kR3zU32;
+        uint64_t si = uint64_t(mS / sqrtf(0.3f));
+
+        mU[0] = mR.mU[0] + ((si * mJ.Next()) >> 32);
+        mU[1] = mR.mU[1] + ((si * mJ.Next()) >> 32);
+    }
+
+    inline void cR2JitterU::Next()
+    {
+        mR.Next();
+        mJ.mIndex += 2;
+
+        uint64_t si = uint64_t(mS / sqrtf(mJ.mIndex / 2 + 0.3f));
+
+        mU[0] = mR.mU[0] + ((si * mJ.Next()) >> 32);
+        mU[1] = mR.mU[1] + ((si * mJ.Next()) >> 32);
+    }
+
+    inline void cR2JitterU::Set(int n)
+    {
+        mR.Set(n);
+        mJ.Set(2 * n);
+
+        uint64_t si = uint64_t(mS / sqrtf(n + 0.3f));
+
+        mU[0] = mR.mU[0] + ((si * mJ.Next()) >> 32);
+        mU[1] = mR.mU[1] + ((si * mJ.Next()) >> 32);
     }
 }
 

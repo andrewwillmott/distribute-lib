@@ -15,7 +15,8 @@ Features:
 * Pre-modulation of inputs into triangular, gaussian-like, and weighted forms
 * Gaussian (normal) distribution as both a cheap approximation and via full
   Box-Muller transform
-* Optional generators supplying LCG/PCG/Halton/Golden/'R' sequences.
+* Optional generators supplying LCG/PCG/XorShift/Hash/Halton/Golden/'R'
+  sequences.
 
 To build and run the test app:
 

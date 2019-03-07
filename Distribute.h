@@ -121,6 +121,8 @@ namespace DistLib
     float   ToFloatGaussian(uint32_t u, float mean, float std_dev);   ///< Returns a gaussian distribution with the given mean and standard deviation
     Vec2f   ToFloatGaussian(uint32_t u0, uint32_t u1);      ///< Full version of ToFloatGaussian via the Box-Muller transform, returns two normally-distributed samples for two inputs.
 
+    Vec2f   ToTriangleHier   (uint32_t u);                  ///< Distributes u hierarchically in the triangle. (See Basu & Owen '14.) Can be more evenly spaced than default version but is more expensive.
+    Vec2f   ToTriangleHierRev(uint32_t u);                  ///< Distributes u taking high bits first rather than low bits.
 }
 
 

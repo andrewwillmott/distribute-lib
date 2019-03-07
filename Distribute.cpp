@@ -398,3 +398,75 @@ Vec3f DistLib::ToTorus(uint32_t u0, uint32_t u1, uint32_t u2, float r)
     
     return Vec3f(cs * rr, ss * rr, cz * r);
 }
+
+Vec2f DistLib::ToTriangleHier(uint32_t u)
+{
+    // Current tri defined by c, (cx + w, cy), (c.x, c.y + w)
+    float cx = 0.0f, cy = 0.0f;
+    float w = 1;
+
+    for (int i = 0; i < 16; i++)
+    {
+        if (!u)
+            break;  // picking middle for the remaining points
+
+        w *= 0.5f;
+
+        switch (u & 0x3)
+        {
+        case 0:     // middle (inverted)
+            cx += w;
+            cy += w;
+            w = -w;
+            break;
+        case 1:     // bottom-right
+            cx += w;
+            break;
+        case 2:     // top-left
+            cy += w;
+            break;
+        case 3:     // bottom-left
+            break;
+        }
+
+        u >>= 2;
+    }
+
+    return Vec2f(cx + w / 3.0f, cy + w / 3.0f);
+}
+
+Vec2f DistLib::ToTriangleHierRev(uint32_t u)
+{
+    // Current tri defined by c, (cx + w, cy), (c.x, c.y + w)
+    float cx = 0.0f, cy = 0.0f;
+    float w = 1;
+
+    for (int i = 0; i < 16; i++)
+    {
+        if (!u)
+            break;  // picking middle for the remaining points
+
+        w *= 0.5f;
+
+        switch ((u >> 30) & 0x3)
+        {
+        case 0:     // middle (inverted)
+            cx += w;
+            cy += w;
+            w = -w;
+            break;
+        case 1:     // bottom-right
+            cx += w;
+            break;
+        case 2:     // top-left
+            cy += w;
+            break;
+        case 3:     // bottom-left
+            break;
+        }
+
+        u <<= 2;
+    }
+
+    return Vec2f(cx + w / 3.0f, cy + w / 3.0f);
+}
