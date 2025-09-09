@@ -1,9 +1,14 @@
 DistributeLib
 =============
 
-A single-source-file library for converting 32-bit integer inputs into various
-1D, 2D, and 3D distributions and types. The intended use is to convert the
-output of an RNG into various more useful forms.
+A small library that contains:
+
+- A number of 32-bit sequence generators -- various classic RNGs, plus a set of
+  progressive sequences.
+
+- Functions for converting 32-bit integer inputs from such generators into
+  various 1D, 2D, and 3D distributions and types. The intended use is to convert
+  the raw output of any generator into various useful distributions.
 
 Features:
 
@@ -15,21 +20,21 @@ Features:
 * Pre-modulation of inputs into triangular, gaussian-like, and weighted forms
 * Gaussian (normal) distribution as both a cheap approximation and via full
   Box-Muller transform
-* Optional generators supplying LCG/PCG/XorShift/Hash/Halton/Golden/'R'
-  sequences.
+* Generators supplying LCG/PCG/XorShift/Hash/Halton/Sobol/Golden/'R' sequences.
 
 To build and run the test app:
 
-    c++ --std=c++11 Distribute.cpp DistributeTest.cpp -o distribute && ./distribute 200
+	make
+    ./distribute 1000  # also see distribute.svg after running
 
-Or add those files to your favourite IDE.
+Or add Generate.* and Distribute.* to your favourite IDE.
 
 
 Examples
 --------
 
 Assuming 'rng' returns the next sample via operator uint32_t(), usage can be as
-simple as below, otherwise substitute rng() or whatever other syntax is
+simple as that below. Otherwise, substitute MyRNG() or whatever other syntax is
 appropriate for your sample generator.
 
 1D:
@@ -41,16 +46,12 @@ appropriate for your sample generator.
 
 2D/3D:
 
-	Vec2f circleLoc     = ToCircle(rng);
+    Vec2f discLoc       = ToDisc(generator);
 	Vec2f pixTentSample = ToSquare(ModTriangle(rng), ModTriangle(rng));
 	Vec3f rayDir        = ToDirection3(rng);
 
-Warning: do not simply use rand() to feed these functions, as, in addition to
-its low quality, its range is not guaranteed to be a full 32 bits.
-
-If you don't already have your own preferred RNG routines, the additional files
-Generate.h/cpp provide LCG, PCG, Halton, "Golden" (Spiral), and "R" generators,
-in a form that interoperates cleanly with Distribute.h.
+Warning: do not use rand() to feed these functions, as, in addition to its low
+quality, its range is not guaranteed to be the full 32 bits.
 
 
 Output

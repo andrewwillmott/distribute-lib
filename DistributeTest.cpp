@@ -1,10 +1,10 @@
-#include "Generate.h"
-#include "Distribute.h"
+#include "Generate.hpp"
+#include "Distribute.hpp"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-using namespace DistLib;
+using namespace DL;
 
 #ifdef _MSC_VER
     #pragma warning (disable: 4996)     // let's not make fopen an error.
@@ -59,7 +59,7 @@ int main(int argc, const char* argv[])
 
     // Exercise various basics over a range of numSamples samples using a LCG generator.
     
-    cLCG generator(seed);
+    LCG generator(seed);
 
     for (int i = 0; i < numSamples; i++)
     {
@@ -70,11 +70,11 @@ int main(int argc, const char* argv[])
         printf("  ToInt32(u, 10)    = %2d\n", ToInt32(u, 10));
         printf("  ToFloat(u, 100)   = %5.2f\n", ToFloat(u, 100.0f));
 
-        Vec2f v2 = ToCircle(u);
-        printf("  ToCircle(u)       = %5.2f, %5.2f\n", v2.x, v2.y);
+        Vec2f v2 = ToDisc(u);
+        printf("  ToDisc(u)       = %5.2f, %5.2f\n", v2.x, v2.y);
 
-        Vec3f v3 = ToSphere(u);
-        printf("  ToSphere(u)       = %5.2f, %5.2f, %5.2f\n", v3.x, v3.y, v3.z);
+        Vec3f v3 = ToBall(u);
+        printf("  ToBall(u)       = %5.2f, %5.2f, %5.2f\n", v3.x, v3.y, v3.z);
 
         uint32_t u0 = u;
 
@@ -103,11 +103,11 @@ int main(int argc, const char* argv[])
         weightKG  
     );
     
-    Vec2f circleLoc     = ToCircle(generator);
+    Vec2f discLoc       = ToDisc(generator);
     Vec2f pixTentSample = ToSquare(ModTriangle(generator), ModTriangle(generator));
-    Vec3f rayDir        = ToDirection3(generator);
+    Vec3f rayDir        = ToDir3(generator);
 
-    printf("circleLoc     = [%g, %g]\n", circleLoc.x, circleLoc.y);
+    printf("discLoc       = [%g, %g]\n", discLoc.x, discLoc.y);
     printf("pixTentSample = [%g, %g]\n", pixTentSample.x, pixTentSample.y);
     printf("rayDir        = [%g, %g, %g]\n", rayDir.x, rayDir.y, rayDir.z);
     
@@ -115,9 +115,10 @@ int main(int argc, const char* argv[])
     // radial distribution.    
     FILE* svgFile = fopen("distribute.svg", "w");
 
-    svg_header(svgFile, 768);
-    float size = 768;
-    svg_text(svgFile, Vec2f(0.0f, 20.0f), "Circle(u, ModTriangle(u))", "black");
+    int wh = 256;
+    svg_header(svgFile, wh);
+    float size = wh;
+    svg_text(svgFile, Vec2f(0.0f, 20.0f), "ToDisc(u, ModTriangle(u))", "black");
 
     svg_line(svgFile, Vec2f(0.0f, 0.0f), Vec2f(size, 0.0f));
     svg_line(svgFile, Vec2f(size, 0.0f), Vec2f(size, size));
@@ -126,7 +127,7 @@ int main(int argc, const char* argv[])
 
     for (int i = 0; i < numSamples; i++)
     {
-        Vec2f v = ToCircle(generator, ModHalfDown(ModTriangle(generator))); // use theta/r version, so we can modulate just r
+        Vec2f v = ToDisc(generator, ModHalfDown(ModTriangle(generator))); // use theta/r version, so we can modulate just r
         v = 0.5f * (v + Vec2f(1.0f, 1.0f));
         v = v * size;
         svg_circle(svgFile, v, 2.0f, "green");
