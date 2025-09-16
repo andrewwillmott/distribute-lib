@@ -70,6 +70,7 @@ namespace DL
     Vec2f ToTriangle  (uint32_t u, Vec2f v0, Vec2f v1, Vec2f v2);   // Returns random point in triangle with vertices v0, v1, v2.
     Vec2f ToCircle    (uint32_t u);                                 // Returns random point on the unit circle
     Vec2f ToDisc      (uint32_t u);                                 // Returns random point on or inside the unit circle
+    Vec2f ToEllipse   (uint32_t u, Vec2f min, Vec2f max);           // Returns random point on or inside the given ellipse
     Vec2f ToRing      (uint32_t u, float r);                        // Returns random point in the unit ring with given width. r=1 -> full circle.
     Mat2f ToMat2      (uint32_t u);                                 // Returns random [0, 1]^2^2 matrix
     Mat2f ToMat2Signed(uint32_t u);                                 // Returns random [-1, 1]^2^2 matrix
@@ -93,14 +94,15 @@ namespace DL
     Vec4f ToQuat      (uint32_t u);                                 // Returns random quaternion rotation
 
     // 2D u x 2 versions. These are costlier and less convenient (requiring multiple rng inputs), but higher quality, and ensure the character of the generator is reflected across all dimensions.
-    Vec2f ToVec2      (uint32_t u0, uint32_t u1);                                // Returns random [0, 1]^3 vector
-    Vec2f ToVec2Signed(uint32_t u0, uint32_t u1);                                // Returns random [-1, 1]^3 vector
+    Vec2f ToVec2      (uint32_t u0, uint32_t u1);                                // Returns random [0, 1]^2 vector
+    Vec2f ToVec2Signed(uint32_t u0, uint32_t u1);                                // Returns random [-1, 1]^2 vector
     Vec2f ToSquare    (uint32_t u0, uint32_t u1);                                // Returns random point in the unit square [0, 1]^2
     Vec2f ToRectangle (uint32_t u0, uint32_t u1, Vec2f min, Vec2f max);          // Returns random point between min and max
     Vec2f ToTriangle  (uint32_t u0, uint32_t u1);                                // Returns random point in triangle with vertices (1, 0), (0, 0), (1, 0).
     Vec2f ToTriangle  (uint32_t u0, uint32_t u1, Vec2f v0, Vec2f v1, Vec2f v2);  // Returns random point in triangle with vertices v0, v1, v2.
     Vec2f ToCircle    (uint32_t u0);                                             // Returns random direction vector (i.e., point on the unit sphere surface).
     Vec2f ToDisc      (uint32_t u0, uint32_t u1);                                // Returns random point in the unit circle. u0 affects angular distribute, u1 the radial. E.g., ToDisc(r1, ModTriangle(r2)) gives more samples in the centre.
+    Vec2f ToEllipse   (uint32_t u0, uint32_t u1, Vec2f min, Vec2f max);          // Returns random point on or inside the given ellipse
     Vec2f ToRing      (uint32_t u0, uint32_t u1, float r);                       // Returns random point in the unit ring with given width. r=1 -> full circle.
 
     // 3D full-u versions. These are costlier and less convenient (requiring multiple rng inputs), but higher quality, and ensure the character of the generator is reflected across all dimensions.
@@ -173,7 +175,6 @@ namespace DL
 // --------------------------------------------------------------------------
 // Inlines
 // --------------------------------------------------------------------------
-
 
 // Internal helpers
 
@@ -400,6 +401,11 @@ inline Vec2f DL::ToTriangle(uint32_t u, Vec2f v0, Vec2f v1, Vec2f v2)
     return (1.0f - c.x - c.y) * v0 + c.x * v1 + c.y * v2;
 }
 
+inline Vec2f DL::ToEllipse(uint32_t u, Vec2f min, Vec2f max)
+{
+    return (min + max + ToDisc(u) * (max - min)) * 0.5f;
+}
+
 inline Vec2f DL::ToRing(uint32_t u, float r)
 {
     uint32_t u0 = u;
@@ -536,7 +542,7 @@ inline Vec2f DL::ToVec2Signed(uint32_t u0, uint32_t u1)
 
 inline Vec2f DL::ToSquare(uint32_t u0, uint32_t u1)
 {
-    return ToVec2Signed(u0, u1);
+    return ToVec2(u0, u1);
 }
 
 inline Vec2f DL::ToRectangle(uint32_t u0, uint32_t u1, Vec2f min, Vec2f max)
@@ -559,6 +565,11 @@ inline Vec2f DL::ToTriangle(uint32_t u0, uint32_t u1, Vec2f v0, Vec2f v1, Vec2f 
 {
     Vec2f c = ToTriangle(u0, u1);
     return (1.0f - c.x - c.y) * v0 + c.x * v1 + c.y * v2;
+}
+
+inline Vec2f DL::ToEllipse(uint32_t u0, uint32_t u1, Vec2f min, Vec2f max)
+{
+    return (min + max + ToDisc(u0, u1) * (max - min)) * 0.5f;
 }
 
 // 3D Full
@@ -673,14 +684,14 @@ inline DL::ModJitter DL::GridJitter(int dim, int n, float lambda)
     // early sample offsets are far too large
     // uint64_t si = uint64_t(mS / sqrtf(mJ.mIndex / n + 0.3f));
 
-    return ModJitter(lambda / pow((n < 1 ? 1 : n), 1.0 / dim));
+    return ModJitter(float(lambda / pow((n < 1 ? 1 : n), 1.0 / dim)));
 }
 
 inline DL::ModJitter DL::RdJitter(int dim, int n, float lambda)
 {
     // See http://extremelearning.com.au/a-simple-method-to-construct-isotropic-quasirandom-blue-noise-point-sequences/
     constexpr double kRdF32 = 0.76;  // our setup assumes lambda=0.5 is ideal so we don't fold that in here
-    lambda *= kRdF32 / pow(n - 0.7, 1.0 / dim);
+    lambda = float(lambda * kRdF32 / pow(n - 0.7, 1.0 / dim));
     return ModJitter(lambda < 1.0f ? lambda : 1.0f);
 }
 

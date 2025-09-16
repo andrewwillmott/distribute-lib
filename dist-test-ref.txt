@@ -11001,5 +11001,5 @@
 
 score = 98.2, modifier =  3, dayOfYear =  46, weightKG =  84.4
 discLoc       = [0.764862, -0.0769244]
-pixTentSample = [0.00995398, -0.838894]
+pixTentSample = [0.504977, 0.0805528]
 rayDir        = [0.443576, -0.778565, -0.440042]

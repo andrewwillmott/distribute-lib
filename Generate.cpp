@@ -10,8 +10,11 @@
 
 #include <stdio.h>
 
-#define HL_ERROR(X)
 using namespace DL;
+
+#ifndef DL_ERROR
+    #define DL_ERROR(X)
+#endif
 
 namespace
 {
@@ -118,7 +121,7 @@ int Halton2::Next()
 {
     if (mBase2 >= kMaxBase3)
     {
-        HL_ERROR("Overflow");
+        DL_ERROR("Overflow");
         return mBase2;
     }
 
@@ -186,7 +189,7 @@ void Halton2::Set(int n)
 {
     if (mBase2 >= kMaxBase3)
     {
-        HL_ERROR("Overflow");
+        DL_ERROR("Overflow");
         return;
     }
 
@@ -215,7 +218,7 @@ int Halton3::Next()
 {
     if (mBase2 >= kMaxBase5)
     {
-        HL_ERROR("Overflow");
+        DL_ERROR("Overflow");
         return mBase2;
     }
 
@@ -309,7 +312,7 @@ void Halton3::Set(int n)
 {
     if (n >= (int) kMaxBase5)
     {
-        HL_ERROR("Overflow");
+        DL_ERROR("Overflow");
         return;
     }
 
@@ -349,7 +352,7 @@ uint64_t Halton2D::Next()
 {
     if (mBase2 >= kMaxBase3d)
     {
-        HL_ERROR("Overflow");
+        DL_ERROR("Overflow");
         return mBase2;
     }
 
@@ -417,7 +420,7 @@ void Halton2D::Set(int n)
 {
     if (mBase2 >= kMaxBase3d)
     {
-        HL_ERROR("Overflow");
+        DL_ERROR("Overflow");
         return;
     }
 
@@ -445,7 +448,7 @@ uint64_t Halton3D::Next()
 {
     if (mBase2 >= kMaxBase5d)
     {
-        HL_ERROR("Overflow");
+        DL_ERROR("Overflow");
         return mBase2;
     }
 
@@ -539,7 +542,7 @@ void Halton3D::Set(int n)
 {
     if (mBase2 >= kMaxBase5d)
     {
-        HL_ERROR("Overflow");
+        DL_ERROR("Overflow");
         return;
     }
 
@@ -573,14 +576,13 @@ void Halton3D::Set(int n)
     }
 }
 
-
 // --- Halton2U --------------------------------------------------------
 
 int Halton2U::Next()
 {
     if (mBase2 >= kMaxBase3)
     {
-        HL_ERROR("Overflow");
+        DL_ERROR("Overflow");
         return mBase2;
     }
 
@@ -638,7 +640,7 @@ void Halton2U::Set(int n)
 {
     if (mBase2 >= kMaxBase3)
     {
-        HL_ERROR("Overflow");
+        DL_ERROR("Overflow");
         return;
     }
 
@@ -666,7 +668,7 @@ int Halton3U::Next()
 {
     if (mBase2 >= kMaxBase5)
     {
-        HL_ERROR("Overflow");
+        DL_ERROR("Overflow");
         return mBase2;
     }
 
@@ -751,7 +753,7 @@ void Halton3U::Set(int n)
 {
     if (mBase2 >= kMaxBase5)
     {
-        HL_ERROR("Overflow");
+        DL_ERROR("Overflow");
         return;
     }
 

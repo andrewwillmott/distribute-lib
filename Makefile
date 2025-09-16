@@ -1,13 +1,13 @@
-TARGET = distribute
 CXXFLAGS = --std=c++11
 
-all: $(TARGET)
+DIST_INCLUDES=Generate.hpp Distribute.hpp
+DIST_SOURCES=Generate.cpp Distribute.cpp
 
-$(TARGET): Distribute.cpp Distribute.hpp Generate.hpp DistributeTest.cpp
-	$(CXX) $(CXXFLAGS) -o $(TARGET) Distribute.cpp Generate.cpp DistributeTest.cpp
+distribute: $(DIST_INCLUDES) $(DIST_SOURCES) DistributeTest.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $(DIST_SOURCES) DistributeTest.cpp
 
 clean:
-	$(RM) $(TARGET)
+	$(RM) distribute
 
 test: distribute
 	./distribute > dist-test.txt

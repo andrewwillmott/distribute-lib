@@ -12,7 +12,9 @@
 #include <math.h>
 #include <stdint.h>
 
-#define DL_ASSERT(X)
+#ifndef DL_ASSERT
+    #define DL_ASSERT(X)
+#endif
 
 namespace DL
 {
