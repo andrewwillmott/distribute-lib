@@ -4,7 +4,7 @@ DistributeLib
 A small library that contains:
 
 - A number of 32-bit sequence generators -- various classic RNGs, plus a set of
-  progressive sequences.
+  stratified progressive sequences.
 
 - Functions for converting 32-bit integer inputs from such generators into
   various 1D, 2D, and 3D distributions and types. The intended use is to convert
@@ -29,6 +29,8 @@ To build and run the test app:
 
 Or add Generate.* and Distribute.* to your favourite IDE.
 
+There is an [online demo](https://andrewwillmott.github.io/app/GenDistTest.html)
+of most of the included generators, modifiers, and distribution functions.
 
 Examples
 --------
