@@ -29,7 +29,7 @@ To build and run the test app:
 
 Or add Generate.* and Distribute.* to your favourite IDE.
 
-There is an [online demo](https://andrewwillmott.github.io/app/GenDistTest.html)
+There is an [online demo](https://andrewwillmott.github.io/app/DemoApp.html?test=Random)
 of most of the included generators, modifiers, and distribution functions.
 
 Examples
