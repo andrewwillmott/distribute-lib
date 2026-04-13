@@ -117,7 +117,7 @@ int main(int argc, const char* argv[])
 
     int wh = 256;
     svg_header(svgFile, wh);
-    float size = wh;
+    float size = float(wh);
     svg_text(svgFile, Vec2f(0.0f, 20.0f), "ToDisc(u, ModTriangle(u))", "black");
 
     svg_line(svgFile, Vec2f(0.0f, 0.0f), Vec2f(size, 0.0f));
